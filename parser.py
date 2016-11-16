@@ -7,7 +7,7 @@ with open('lookup.json') as input_file:
     lookup = json.load(input_file)
 
 def makeVW():
-        ignore = ["_id", "appearedLocalTime"]
+        ignore = ["_id", "appearedLocalTime","pokestopDistanceKm","gymDistanceKm","class"]
 	outfile = open('300k.vw', 'w')
 	count_file = open('pokemon_summary.csv', 'w')
 
@@ -49,8 +49,8 @@ def testTrain(percentage):
 		doubleItems.append(line)
 	f.close()
 
-	perTest = percentage
-	perTrain = 1 - percentage
+	perTest = 1- percentage
+	perTrain = percentage
 	size = len(doubleItems)
 	trainSize = int(perTrain * size)
 	rand = sample(range(0,size), size)
@@ -67,9 +67,9 @@ def main():
 	if option == "VW":
 		makeVW()
 	if option == "TT":
-		percentage = sys.argv[2]
-		if percentage > 1:
-			percentage = .33
+		percentage = float(sys.argv[2])
+		#if percentage > 1:
+		#	percentage = .33
 		testTrain(percentage)
 
 
