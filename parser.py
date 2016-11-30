@@ -7,11 +7,21 @@ with open('lookup.json') as input_file:
     lookup = json.load(input_file)
 
 def makeVW():
-        ignore = ["_id", "appearedLocalTime","pokestopDistanceKm","gymDistanceKm","class"]
+	ignore = ["_id", "appearedLocalTime","pokestopDistanceKm","gymDistanceKm","class"]
+	pokeInclude = ["10", "13", "16", "17", "19", "21", "23", "29", "32", "35", "41", "43", "46", "48",
+					"54", "60", "69", "96", "98", "118", "120", "129", "133"]
 	outfile = open('300k.vw', 'w')
 	count_file = open('pokemon_summary.csv', 'w')
+	
+	pokeCount = {}
+	z = 0
+	for z in  range (0,len(pokeInclude)):
+		tempDict = {'{}'.format(pokeInclude[z]): 0}
+		pokeCount.update(tempDict)
+		z = z+1
 
 	pokemon_counts = [0] * 151
+			
 	with open("300k.csv") as infile:
 		first=True
 		for row in csv.reader(infile):
@@ -20,6 +30,8 @@ def makeVW():
 				headers = row
 			else:
 				pokemon_counts[int(row[0])]+=1
+				if (row[0] in pokeInclude):
+					pokeCount[row[0]] = pokeCount[row[0]] + 1
 				params_string = ""
 				for i in range(1,len(row)):
                                     if(headers[i] in ignore):
@@ -27,15 +39,20 @@ def makeVW():
                                     if(headers[i] in lookup.keys()):
                                         row[i]=lookup[headers[i]][row[i]]
                                     params_string+=("{}:{} ".format(headers[i], row[i]))
-
-				write_string = "{} | {} \n".format(row[0], params_string)
-                                write_string = write_string.replace('TRUE', '1')
-                                write_string = write_string.replace('true', '1')
-                                write_string = write_string.replace('FALSE', '0')
-                                write_string = write_string.replace('false', '0')
-				outfile.write(write_string)
+				if (row[0] in pokeInclude) and (pokeCount[row[0]] < 3000):
+					write_string = "{} | {} \n".format(row[0], params_string)
+					write_string = write_string.replace('TRUE', '1')
+					write_string = write_string.replace('true', '1')
+					write_string = write_string.replace('FALSE', '0')
+					write_string = write_string.replace('false', '0')
+					outfile.write(write_string)
+				else:
+					continue
 	count_file.write(str(pokemon_counts[1:-2]))
 	outfile.close()
+	
+	print pokeCount
+	
 	return
 
 def testTrain(percentage):
@@ -68,8 +85,8 @@ def main():
 		makeVW()
 	if option == "TT":
 		percentage = float(sys.argv[2])
-		#if percentage > 1:
-		#	percentage = .33
+		if percentage > 1:
+			percentage = .33
 		testTrain(percentage)
 
 
