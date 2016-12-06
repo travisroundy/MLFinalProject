@@ -30,11 +30,20 @@ def makeVW():
 	'cooc_135', 'cooc_136', 'cooc_137', 'cooc_138', 'cooc_139', 'cooc_140', 'cooc_141', 'cooc_142', 'cooc_143', 'cooc_144', 'cooc_145',
 	 'cooc_146', 'cooc_147', 'cooc_148', 'cooc_149', 'cooc_150', 'cooc_151']
 
-	pokeInclude = ["10", "13", "16", "17", "19", "21", "23", "29", "32", "35", "41", "43", "46", "48",
-					"54", "60", "69", "96", "98", "118", "120", "129", "133"]
+        MIN_OCCURENCES = 2000
+	pokeInclude = ["10", "13", "16", "17", "19", "21", "23", "29", "32", "35", "41", "43", "46", "48","54", "60", "69", "96", "98", "118", "120", "129", "133"]
+        try:
+            with open('pokemon_summary.csv', 'r') as infile:
+                pokeInclude = []
+                for row in csv.reader(infile):
+                    for index,value in enumerate(row):
+                        if(int(value) >= MIN_OCCURENCES):
+                            pokeInclude.append(index)
+
+        except:
+            print "No pokemon summary file found. Run with 'COUNT' parameter, then try again"
 
 	outfile = open('300k.vw', 'w')
-	count_file = open('pokemon_summary.csv', 'w')
 
 	pokeCount = {}
 	z = 0
@@ -55,7 +64,6 @@ def makeVW():
 
 			else:
 				pokemon_counts[int(row[0]) - 1]+=1
-				'''
 				if (row[0] in pokeInclude):
 					pokeCount[row[0]] = pokeCount[row[0]] + 1
 
@@ -76,16 +84,25 @@ def makeVW():
 					write_string = write_string.replace('false', '0')
 					outfile.write(write_string)
 				else:
-					continue
-                                '''
-        print len(pokemon_counts)
-        count_file.write(str([x for x in range(1,151)])[1:-2] + '\n')
-	count_file.write(str(pokemon_counts)[1:-2])
+				    continue
 	outfile.close()
 
-	#print pokeCount
 
 	return
+
+def makeCount():
+	count_file = open('pokemon_summary.csv', 'w')
+	with open("300k.csv") as infile:
+		first=True
+		for row in csv.reader(infile):
+			if(first == True):
+				first=False
+			else:
+				pokemon_counts[int(row[0]) - 1]+=1
+        count_file.write(str([x for x in range(1,151)]).replace('[','').replace(']','') + '\n')
+	count_file.write(str(pokemon_counts).replace('[','').replace(']',''))
+        count_file.close()
+
 
 def testTrain(percentage):
 	testfile = open('test.vw', 'w')
@@ -112,7 +129,8 @@ def testTrain(percentage):
 
 def main():
 	option = sys.argv[1]
-
+        if option == "COUNT":
+                makeCount()
 	if option == "VW":
 		makeVW()
 	if option == "TT":
