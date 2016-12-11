@@ -1,4 +1,5 @@
 # MLFinalProject
+# Travis Roundy, Taylor Thomas, Anna Yudina, Justin Olson
 
 USAGE: python parser.py flag trainPercentage
 
